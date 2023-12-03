@@ -80,7 +80,7 @@ impl Param {
             }
         };
 
-        let (y_mindex, y_maxdex) = {
+        let (y_mindex, y_maxdex) = if self.is_vec2 {
             let y_temp = self
                 .axis_points
                 .y
@@ -91,16 +91,25 @@ impl Param {
                 Ok(ind) => (ind, ind + 1),
                 Err(ind) => (ind - 1, ind),
             }
+        } else {
+            (0, 0)
         };
 
         // Apply offset on each binding
         for binding in &self.bindings {
             let node_offsets = node_render_ctxs.get_mut(&binding.node).unwrap();
 
-            let range_in = InterpRange::new(
-                vec2(self.axis_points.x[x_mindex], self.axis_points.y[y_mindex]),
-                vec2(self.axis_points.x[x_maxdex], self.axis_points.y[y_maxdex]),
-            );
+            let range_in = if self.is_vec2 {
+                InterpRange::new(
+                    vec2(self.axis_points.x[x_mindex], self.axis_points.y[y_mindex]),
+                    vec2(self.axis_points.x[x_maxdex], self.axis_points.y[y_maxdex]),
+                )
+            } else {
+                InterpRange::new(
+                    vec2(self.axis_points.x[x_mindex], 0.),
+                    vec2(self.axis_points.x[x_maxdex], 1.),
+                )
+            };
 
             match binding.values {
                 BindingValues::ZSort(_) => {
