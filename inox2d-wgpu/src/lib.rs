@@ -235,14 +235,17 @@ impl Renderer {
         composite_bind: &BindGroup,
         CompositeData(parts, uuid): &CompositeData,
     ) {
-
         for (i, data) in parts.iter().enumerate() {
             self.render_part(
                 puppet,
                 composite_view,
                 mask_view,
                 uniform_group,
-                if i == 0 { LoadOp::Clear(Color::TRANSPARENT) } else { LoadOp::Load },
+                if i == 0 {
+                    LoadOp::Clear(Color::TRANSPARENT)
+                } else {
+                    LoadOp::Load
+                },
                 encoder,
                 data,
             );
@@ -321,7 +324,8 @@ impl Renderer {
                 sample_count: 1,
                 dimension: wgpu::TextureDimension::D2,
                 format: wgpu::TextureFormat::Bgra8Unorm,
-                usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::RENDER_ATTACHMENT,
+                usage: wgpu::TextureUsages::TEXTURE_BINDING
+                    | wgpu::TextureUsages::RENDER_ATTACHMENT,
                 label: Some("texture"),
                 view_formats: &[],
             })
@@ -340,7 +344,8 @@ impl Renderer {
                 sample_count: 1,
                 dimension: wgpu::TextureDimension::D2,
                 format: wgpu::TextureFormat::Depth24PlusStencil8,
-                usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::RENDER_ATTACHMENT,
+                usage: wgpu::TextureUsages::TEXTURE_BINDING
+                    | wgpu::TextureUsages::RENDER_ATTACHMENT,
                 label: Some("texture"),
                 view_formats: &[],
             })

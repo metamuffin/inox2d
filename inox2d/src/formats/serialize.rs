@@ -10,8 +10,8 @@ use crate::math::transform::TransformOffset;
 use crate::mesh::{f32s_as_vec2s, Mesh};
 use crate::nodes::node::{InoxNode, InoxNodeUuid};
 use crate::nodes::node_data::{
-    BlendMode, Composite, Drawable, InoxData, Mask, MaskMode, Part, UnknownBlendModeError,
-    UnknownMaskModeError,
+    BlendMode, Composite, Drawable, InoxData, Mask, MaskMode, MeshGroup, Part,
+    UnknownBlendModeError, UnknownMaskModeError,
 };
 use crate::nodes::node_tree::InoxNodeTree;
 use crate::nodes::physics::SimplePhysics;
@@ -110,6 +110,7 @@ fn deserialize_node_data<T>(
         "Part" => InoxData::Part(deserialize_part(obj)?),
         "Composite" => InoxData::Composite(deserialize_composite(obj)?),
         "SimplePhysics" => InoxData::SimplePhysics(deserialize_simple_physics(obj)?),
+        "MeshGroup" => InoxData::MeshGroup(deserialize_mesh_group(obj)?),
         node_type => InoxData::Custom((deserialize_custom)(node_type, obj)?),
     })
 }
@@ -170,6 +171,13 @@ fn deserialize_part(obj: &JsonObject) -> InoxParseResult<Part> {
 fn deserialize_composite(obj: &JsonObject) -> InoxParseResult<Composite> {
     let draw_state = deserialize_drawable(obj)?;
     Ok(Composite { draw_state })
+}
+
+fn deserialize_mesh_group(obj: &JsonObject) -> InoxParseResult<MeshGroup> {
+    Ok(MeshGroup {
+        dynamic_deformation: obj.get_bool("dynamic_deformation")?,
+        translate_children: obj.get_bool("translate_children")?,
+    })
 }
 
 fn deserialize_simple_physics(obj: &JsonObject) -> InoxParseResult<SimplePhysics> {
@@ -284,7 +292,9 @@ pub fn deserialize_puppet_ext<T>(
     deserialize_node_custom: &impl Fn(&str, &JsonObject) -> InoxParseResult<T>,
 ) -> InoxParseResult<Puppet<T>> {
     let Some(obj) = val.as_object() else {
-        return Err(InoxParseError::JsonError(JsonError::ValueIsNotObject("(puppet)".to_owned())));
+        return Err(InoxParseError::JsonError(JsonError::ValueIsNotObject(
+            "(puppet)".to_owned(),
+        )));
     };
     let obj = JsonObject(obj);
 
@@ -426,7 +436,9 @@ fn deserialize_nodes<T>(
 
     for (i, child) in obj.get_list("children").unwrap_or(&[]).iter().enumerate() {
         let Some(child) = child.as_object() else {
-            return Err(InoxParseError::JsonError(JsonError::ValueIsNotObject(format!("children[{i}]"))))
+            return Err(InoxParseError::JsonError(JsonError::ValueIsNotObject(
+                format!("children[{i}]"),
+            )));
         };
 
         let child_id =
@@ -451,7 +463,9 @@ fn deserialize_nodes_rec<T>(
 
     for (i, child) in obj.get_list("children").unwrap_or(&[]).iter().enumerate() {
         let Some(child) = child.as_object() else {
-            return Err(InoxParseError::JsonError(JsonError::ValueIsNotObject(format!("children[{i}]"))))
+            return Err(InoxParseError::JsonError(JsonError::ValueIsNotObject(
+                format!("children[{i}]"),
+            )));
         };
         let child_id =
             deserialize_nodes_rec(&JsonObject(child), deserialize_node_custom, node_tree)

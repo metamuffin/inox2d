@@ -43,6 +43,12 @@ fn blend_state_for_blend_mode(mode: BlendMode) -> BlendState {
             dst_factor: BlendFactor::OneMinusSrcAlpha,
             operation: BlendOperation::Subtract,
         },
+        // TODO: dummy impl; using multiply for now
+        BlendMode::ColorBurn => BlendComponent {
+            src_factor: BlendFactor::Dst,
+            dst_factor: BlendFactor::OneMinusSrcAlpha,
+            operation: BlendOperation::Add,
+        },
     };
 
     BlendState {

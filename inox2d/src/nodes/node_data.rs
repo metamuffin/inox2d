@@ -1,7 +1,6 @@
 use glam::Vec3;
 
 use crate::mesh::Mesh;
-
 use super::node::InoxNodeUuid;
 use super::physics::SimplePhysics;
 
@@ -32,10 +31,11 @@ pub enum BlendMode {
     /// via a lower rendered area.
     /// (Basically inverse ClipToLower.)
     SliceFromLower,
+    ColorBurn,
 }
 
 impl BlendMode {
-    pub const VALUES: [BlendMode; 7] = [
+    pub const VALUES: [BlendMode; 8] = [
         BlendMode::Normal,
         BlendMode::Multiply,
         BlendMode::ColorDodge,
@@ -43,6 +43,7 @@ impl BlendMode {
         BlendMode::Screen,
         BlendMode::ClipToLower,
         BlendMode::SliceFromLower,
+        BlendMode::ColorBurn,
     ];
 }
 
@@ -62,6 +63,7 @@ impl TryFrom<&str> for BlendMode {
             "Screen" => Ok(BlendMode::Screen),
             "ClipToLower" => Ok(BlendMode::ClipToLower),
             "SliceFromLower" => Ok(BlendMode::SliceFromLower),
+            "ColorBurn" => Ok(BlendMode::ColorBurn),
             unknown => Err(UnknownBlendModeError(unknown.to_owned())),
         }
     }
@@ -129,11 +131,18 @@ pub struct Part {
 }
 
 #[derive(Debug, Clone)]
+pub struct MeshGroup {
+    pub dynamic_deformation: bool,
+    pub translate_children: bool,
+}
+
+#[derive(Debug, Clone)]
 pub enum InoxData<T> {
     Node,
     Part(Part),
     Composite(Composite),
     SimplePhysics(SimplePhysics),
+    MeshGroup(MeshGroup),
     Custom(T),
 }
 
@@ -164,6 +173,7 @@ impl<T> InoxData<T> {
             InoxData::Part(_) => "Part",
             InoxData::Composite(_) => "Composite",
             InoxData::SimplePhysics(_) => "SimplePhysics",
+            InoxData::MeshGroup(_) => "MeshGroup",
             InoxData::Custom(_) => "Custom",
         }
     }

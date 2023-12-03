@@ -292,6 +292,11 @@ impl OpenglRenderer {
                     gl.blend_equation(glow::FUNC_SUBTRACT);
                     gl.blend_func(glow::ONE_MINUS_DST_ALPHA, glow::ONE_MINUS_SRC_ALPHA);
                 }
+                // TODO: dummy impl; using multiply for now
+                BlendMode::ColorBurn => {
+                    gl.blend_equation(glow::FUNC_ADD);
+                    gl.blend_func(glow::DST_COLOR, glow::ONE_MINUS_SRC_ALPHA);
+                }
             }
         }
     }
